@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trucco's — Seguimiento de Lotes</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+    header { background: #1a1a2e; color: white; padding: 1rem 2rem; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    header h1 { font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
+    header span { font-size: 0.85rem; color: #a0a0b0; }
+    .container { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .tab { padding: 0.6rem 1.4rem; border-radius: 8px; border: none; cursor: pointer; font-size: 0.9rem; font-weight: 600; background: white; color: #666; transition: all 0.2s; }
+    .tab.active { background: #1a1a2e; color: white; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 1.5rem; }
+    .card h2 { font-size: 1.1rem; margin-bottom: 1.2rem; color: #1a1a2e; border-bottom: 2px solid #f0f2f5; padding-bottom: 0.6rem; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: 0.82rem; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+    input, select { padding: 0.6rem 0.9rem; border: 1.5px solid #ddd; border-radius: 8px; font-size: 0.95rem; transition: border 0.2s; background: #fafafa; width: 100%; }
+    input:focus, select:focus { outline: none; border-color: #1a1a2e; background: white; }
+    .btn { padding: 0.7rem 1.5rem; border: none; border-radius: 8px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #1a1a2e; color: white; }
+    .btn-primary:hover { background: #2d2d4e; }
+    .btn-success { background: #2ecc71; color: white; }
+    .btn-success:hover { background: #27ae60; }
+    .btn-warning { background: #f39c12; color: white; }
+    .btn-warning:hover { background: #d68910; }
+    .btn-danger { background: #e74c3c; color: white; font-size: 0.8rem; padding: 0.4rem 0.9rem; }
+    .btn-danger:hover { background: #c0392b; }
+    .btn-sm { padding: 0.4rem 0.9rem; font-size: 0.82rem; }
+    .filters { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.2rem; align-items: flex-end; }
+    .filters select { min-width: 150px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: #1a1a2e; color: white; padding: 0.7rem 1rem; text-align: left; font-weight: 600; }
+    td { padding: 0.7rem 1rem; border-bottom: 1px solid #f0f2f5; vertical-align: middle; }
+    tr:hover td { background: #f8f9ff; }
+    .badge { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.78rem; font-weight: 700; }
+    .badge-sent { background: #eaf4fd; color: #1a6fa8; }
+    .badge-progress { background: #fef9e7; color: #b7770d; }
+    .badge-returned { background: #eafaf1; color: #1e8449; }
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .empty { text-align: center; padding: 3rem; color: #aaa; font-size: 0.95rem; }
+    .toast { position: fixed; bottom: 2rem; right: 2rem; background: #1a1a2e; color: white; padding: 0.9rem 1.4rem; border-radius: 10px; font-size: 0.9rem; box-shadow: 0 4px 16px rgba(0,0,0,0.2); transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 9999; max-width: 320px; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+    .toast.error { background: #e74c3c; }
+    .toast.success { background: #27ae60; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.2rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.07); border-left: 4px solid #ddd; }
+    .stat-card.sent { border-color: #3498db; }
+    .stat-card.progress { border-color: #f39c12; }
+    .stat-card.returned { border-color: #2ecc71; }
+    .stat-card .number { font-size: 2rem; font-weight: 700; color: #1a1a2e; }
+    .stat-card .label { font-size: 0.82rem; color: #888; margin-top: 0.2rem; }
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 100; align-items: center; justify-content: center; }
+    .modal-overlay.open { display: flex; }
+    .modal { background: white; border-radius: 14px; padding: 2rem; width: 90%; max-width: 480px; box-shadow: 0 8px 32px rgba(0,0,0,0.2); }
+    .modal h3 { margin-bottom: 1rem; font-size: 1.1rem; color: #1a1a2e; }
+    .modal p { font-size: 0.9rem; color: #555; margin-bottom: 1.2rem; }
+    .modal-actions { display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.2rem; }
+
+    /* ── DATEPICKER ─────────────────────────────── */
+    .dp-wrapper { position: relative; }
+    .dp-input {
+      padding: 0.6rem 0.9rem;
+      border: 1.5px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fafafa;
+      cursor: pointer;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      user-select: none;
+      transition: border 0.2s;
+    }
+    .dp-input:hover { border-color: #1a1a2e; }
+    .dp-input.active { border-color: #1a1a2e; background: white; }
+    .dp-input span { color: #999; font-size: 0.95rem; }
+    .dp-input span.has-value { color: #1a1a2e; }
+    .dp-icon { font-size: 1rem; color: #888; }
+
+    .dp-popup {
+      display: none;
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+      z-index: 1000;
+      width: 320px;
+      overflow: hidden;
+      border: 1px solid #e8e8e8;
+    }
+    .dp-popup.open { display: block; }
+
+    .dp-header {
+      background: #1a1a2e;
+      color: white;
+      padding: 0.9rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dp-header span { font-weight: 600; font-size: 0.95rem; cursor: pointer; }
+    .dp-header button { background: none; border: none; color: white; font-size: 1.1rem; cursor: pointer; padding: 0 0.3rem; line-height: 1; }
+    .dp-header button:hover { opacity: 0.7; }
+
+    .dp-body { display: flex; }
+
+    /* Calendario */
+    .dp-cal { flex: 1; padding: 0.6rem; }
+    .dp-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 0.3rem; }
+    .dp-weekdays span { text-align: center; font-size: 0.72rem; font-weight: 700; color: #888; padding: 0.3rem 0; }
+    .dp-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .dp-day {
+      text-align: center;
+      padding: 0.35rem 0;
+      font-size: 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #1a1a2e;
+      transition: background 0.15s;
+    }
+    .dp-day:hover { background: #f0f2f5; }
+    .dp-day.other-month { color: #ccc; }
+    .dp-day.today { font-weight: 700; color: #1a1a2e; border: 1.5px solid #1a1a2e; }
+    .dp-day.selected { background: #1a1a2e; color: white; font-weight: 700; }
+    .dp-day.selected:hover { background: #2d2d4e; }
+
+    /* Scroll de tiempo */
+    .dp-time {
+      width: 130px;
+      border-left: 1px solid #f0f2f5;
+      display: flex;
+      flex-direction: column;
+    }
+    .dp-time-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #888;
+      text-align: center;
+      padding: 0.5rem 0 0.3rem;
+      border-bottom: 1px solid #f0f2f5;
+    }
+    .dp-time-cols { display: flex; flex: 1; }
+    .dp-time-col {
+      flex: 1;
+      overflow-y: auto;
+      max-height: 200px;
+      scroll-snap-type: y mandatory;
+      scrollbar-width: none;
+    }
+    .dp-time-col::-webkit-scrollbar { display: none; }
+    .dp-time-col-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #bbb;
+      text-align: center;
+      padding: 0.3rem 0;
+      position: sticky;
+      top: 0;
+      background: white;
+    }
+    .dp-time-item {
+      text-align: center;
+      padding: 0.4rem 0;
+      font-size: 0.88rem;
+      cursor: pointer;
+      scroll-snap-align: start;
+      border-radius: 6px;
+      margin: 1px 4px;
+      transition: background 0.15s;
+    }
+    .dp-time-item:hover { background: #f0f2f5; }
+    .dp-time-item.selected { background: #1a1a2e; color: white; font-weight: 700; }
+
+    .dp-ampm-col {
+      width: 44px;
+      border-left: 1px solid #f0f2f5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.5rem 0;
+    }
+    .dp-ampm-item {
+      padding: 0.35rem 0.5rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #888;
+      transition: all 0.15s;
+    }
+    .dp-ampm-item.selected { background: #1a1a2e; color: white; }
+
+    .dp-footer {
+      border-top: 1px solid #f0f2f5;
+      padding: 0.6rem 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .dp-footer button {
+      border: none;
+      border-radius: 6px;
+      padding: 0.35rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .dp-btn-clear { background: #f0f2f5; color: #666; }
+    .dp-btn-today { background: #f0f2f5; color: #1a1a2e; }
+    .dp-btn-ok { background: #1a1a2e; color: white; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .summary-grid { grid-template-columns: 1fr; }
+      .filters { flex-direction: column; }
+      .dp-popup { width: 290px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🧵 Trucco's — Lotes de Confeccion</h1>
+  <span id="header-count">0 lotes registrados</span>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" onclick="showTab('lotes', this)">📋 Lotes</button>
+    <button class="tab" onclick="showTab('registrar', this)">➕ Registrar lote</button>
+    <button class="tab" onclick="showTab('resumen', this)">📊 Resumen</button>
+  </div>
+
+  <!-- TAB: LOTES -->
+  <div id="tab-lotes" class="tab-content active">
+    <div class="card">
+      <h2>Lotes registrados</h2>
+      <div class="filters">
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#555;margin-bottom:0.2rem">GÉNERO</label>
+          <select id="filter-gender" onchange="loadLots()"><option value="">Todos</option><option value="hombre">Hombre</option><option value="mujer">Mujer</option></select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#555;margin-bottom:0.2rem">PRENDA</label>
+          <select id="filter-garment" onchange="loadLots()">
+            <option value="">Todas</option>
+            <option value="blue_jean">Blue Jean</option><option value="camiseta">Camiseta</option><option value="sudadera">Sudadera</option>
+            <option value="top">Top</option><option value="camisa">Camisa</option><option value="ropa_interior">Ropa Interior</option>
+          </select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#555;margin-bottom:0.2rem">TALLA</label>
+          <select id="filter-size" onchange="loadLots()"><option value="">Todas</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option></select>
+        </div>
+        <div>
+          <label style="display:block;font-size:0.78rem;font-weight:600;color:#555;margin-bottom:0.2rem">ESTADO</label>
+          <select id="filter-status" onchange="loadLots()"><option value="">Todos</option><option value="SENT">Enviado</option><option value="IN_PROGRESS">En proceso</option><option value="RETURNED">Devuelto</option></select>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="clearFilters()">Limpiar filtros</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Lote</th><th>Género</th><th>Prenda</th><th>Talla</th><th>Uds.</th><th>Estado</th><th>Enviado</th><th>Iniciado</th><th>Devuelto</th><th>Tiempo</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="lots-body"><tr><td colspan="11" class="empty">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: REGISTRAR -->
+  <div id="tab-registrar" class="tab-content">
+    <div class="card">
+      <h2>Registrar nuevo lote</h2>
+      <form onsubmit="submitLot(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Número de lote</label>
+            <input type="text" id="f-lotNumber" placeholder="Ej: 2025-001" required />
+          </div>
+          <div class="form-group">
+            <label>Cantidad de unidades</label>
+            <input type="number" id="f-quantity" placeholder="Ej: 50" min="1" required />
+          </div>
+          <div class="form-group">
+            <label>Género</label>
+            <select id="f-gender" onchange="updateGarments()" required>
+              <option value="">Seleccionar...</option>
+              <option value="hombre">Hombre</option>
+              <option value="mujer">Mujer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Tipo de prenda</label>
+            <select id="f-garmentType" required>
+              <option value="">Selecciona género primero</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Talla</label>
+            <select id="f-size" required>
+              <option value="">Seleccionar...</option>
+              <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Fecha y hora de envío</label>
+            <div class="dp-wrapper" id="dp-sent">
+              <div class="dp-input" onclick="toggleDP('dp-sent')">
+                <span id="dp-sent-display">Seleccionar fecha y hora</span>
+                <span class="dp-icon">📅</span>
+              </div>
+              <div class="dp-popup" id="dp-sent-popup"></div>
+            </div>
+            <input type="hidden" id="f-sentAt" />
+          </div>
+          <div class="form-group full">
+            <label>Notas (opcional)</label>
+            <input type="text" id="f-notes" placeholder="Observaciones del lote..." />
+          </div>
+        </div>
+        <div style="margin-top:1.2rem">
+          <button type="submit" class="btn btn-primary">Registrar lote</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TAB: RESUMEN -->
+  <div id="tab-resumen" class="tab-content">
+    <div class="summary-grid">
+      <div class="stat-card sent"><div class="number" id="sum-sent">0</div><div class="label">Enviados a confeccion</div></div>
+      <div class="stat-card progress"><div class="number" id="sum-progress">0</div><div class="label">En proceso de confeccion</div></div>
+      <div class="stat-card returned"><div class="number" id="sum-returned">0</div><div class="label">Devueltos al almacén</div></div>
+    </div>
+    <div class="card"><h2>Por prenda y género</h2><div id="sum-garment"></div></div>
+    <div class="card"><h2>Por talla</h2><div id="sum-size"></div></div>
+  </div>
+</div>
+
+<!-- MODAL AVANZAR ESTADO -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <h3 id="modal-title">Actualizar estado</h3>
+    <p id="modal-desc"></p>
+    <div class="form-group">
+      <label id="modal-date-label">Fecha y hora</label>
+      <div class="dp-wrapper" id="dp-modal">
+        <div class="dp-input" onclick="toggleDP('dp-modal')">
+          <span id="dp-modal-display">Seleccionar fecha y hora</span>
+          <span class="dp-icon">📅</span>
+        </div>
+        <div class="dp-popup" id="dp-modal-popup"></div>
+      </div>
+      <input type="hidden" id="modal-date-value" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="background:#eee;color:#333" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmAction()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'http://localhost:3000/api/v1';
+let currentLotId = null;
+let currentAction = null;
+
+const GARMENTS = {
+  hombre: [{value:'blue_jean',label:'Blue Jean'},{value:'camiseta',label:'Camiseta'},{value:'sudadera',label:'Sudadera'}],
+  mujer: [{value:'blue_jean',label:'Blue Jean'},{value:'top',label:'Top'},{value:'camisa',label:'Camisa'},{value:'ropa_interior',label:'Ropa Interior'}],
+};
+
+const MONTHS = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const MONTHS_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+// ── DATEPICKER STATE ──────────────────────────────────────────────────────────
+const dpState = {};
+
+function initDP(id, hiddenId, displayId) {
+  const now = new Date();
+  dpState[id] = {
+    hiddenId, displayId,
+    year: now.getFullYear(),
+    month: now.getMonth(),
+    selectedDay: null,
+    selectedHour: now.getHours() % 12 || 12,
+    selectedMin: now.getMinutes(),
+    selectedAMPM: now.getHours() < 12 ? 'a.m.' : 'p.m.',
+  };
+  renderDP(id);
+}
+
+function toggleDP(id) {
+  const popup = document.getElementById(id + '-popup');
+  const isOpen = popup.classList.contains('open');
+  // Cerrar todos
+  document.querySelectorAll('.dp-popup').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.dp-input').forEach(i => i.classList.remove('active'));
+  if (!isOpen) {
+    popup.classList.add('open');
+    document.querySelector(`#${id} .dp-input`).classList.add('active');
+  }
+}
+
+function renderDP(id) {
+  const s = dpState[id];
+  const popup = document.getElementById(id + '-popup');
+  const now = new Date();
+  const firstDay = new Date(s.year, s.month, 1).getDay();
+  const daysInMonth = new Date(s.year, s.month + 1, 0).getDate();
+  const daysInPrev = new Date(s.year, s.month, 0).getDate();
+
+  // Días
+  let daysHTML = '';
+  for (let i = firstDay - 1; i >= 0; i--) {
+    daysHTML += `<div class="dp-day other-month">${daysInPrev - i}</div>`;
+  }
+  for (let d = 1; d <= daysInMonth; d++) {
+    const isToday = d === now.getDate() && s.month === now.getMonth() && s.year === now.getFullYear();
+    const isSelected = d === s.selectedDay;
+    daysHTML += `<div class="dp-day${isToday ? ' today' : ''}${isSelected ? ' selected' : ''}" onclick="selectDay('${id}', ${d})">${d}</div>`;
+  }
+  const remaining = 42 - firstDay - daysInMonth + 1;
+  for (let d = 1; d <= remaining && remaining < 7; d++) {
+    daysHTML += `<div class="dp-day other-month">${d}</div>`;
+  }
+
+  // Horas 1-12
+  let hoursHTML = '<div class="dp-time-col-label">HR</div>';
+  for (let h = 1; h <= 12; h++) {
+    hoursHTML += `<div class="dp-time-item${h === s.selectedHour ? ' selected' : ''}" onclick="selectHour('${id}', ${h})">${String(h).padStart(2,'0')}</div>`;
+  }
+
+  // Minutos 0-59
+  let minsHTML = '<div class="dp-time-col-label">MIN</div>';
+  for (let m = 0; m < 60; m++) {
+    minsHTML += `<div class="dp-time-item${m === s.selectedMin ? ' selected' : ''}" onclick="selectMin('${id}', ${m})">${String(m).padStart(2,'0')}</div>`;
+  }
+
+  popup.innerHTML = `
+    <div class="dp-header">
+      <button type="button" onclick="changeMonth('${id}', -1)">&#8593;</button>
+      <span>${MONTHS[s.month]} de ${s.year}</span>
+      <button type="button" onclick="changeMonth('${id}', 1)">&#8595;</button>
+    </div>
+    <div class="dp-body">
+      <div class="dp-cal">
+        <div class="dp-weekdays">
+          <span>DO</span><span>LU</span><span>MA</span><span>MI</span><span>JU</span><span>VI</span><span>SA</span>
+        </div>
+        <div class="dp-days">${daysHTML}</div>
+      </div>
+      <div class="dp-time">
+        <div class="dp-time-label">HORA</div>
+        <div class="dp-time-cols">
+          <div class="dp-time-col" id="${id}-hours">${hoursHTML}</div>
+          <div class="dp-time-col" id="${id}-mins">${minsHTML}</div>
+        </div>
+        <div class="dp-ampm-col">
+          <div class="dp-ampm-item${s.selectedAMPM === 'a.m.' ? ' selected' : ''}" onclick="selectAMPM('${id}', 'a.m.')">a.m.</div>
+          <div class="dp-ampm-item${s.selectedAMPM === 'p.m.' ? ' selected' : ''}" onclick="selectAMPM('${id}', 'p.m.')">p.m.</div>
+        </div>
+      </div>
+    </div>
+    <div class="dp-footer">
+      <button type="button" class="dp-btn-clear" onclick="clearDP('${id}')">Borrar</button>
+      <button type="button" class="dp-btn-today" onclick="setToday('${id}')">Hoy</button>
+      <button type="button" class="dp-btn-ok" onclick="confirmDP('${id}')">OK</button>
+    </div>
+  `;
+
+  // Scroll a seleccionados
+  setTimeout(() => {
+    const hCol = document.getElementById(`${id}-hours`);
+    const mCol = document.getElementById(`${id}-mins`);
+    if (hCol) {
+      const hItem = hCol.querySelector('.selected');
+      if (hItem) hCol.scrollTop = hItem.offsetTop - 40;
+    }
+    if (mCol) {
+      const mItem = mCol.querySelector('.selected');
+      if (mItem) mCol.scrollTop = mItem.offsetTop - 40;
+    }
+  }, 50);
+}
+
+function changeMonth(id, dir) {
+  const s = dpState[id];
+  s.month += dir;
+  if (s.month > 11) { s.month = 0; s.year++; }
+  if (s.month < 0) { s.month = 11; s.year--; }
+  renderDP(id);
+}
+
+function selectDay(id, d) {
+  dpState[id].selectedDay = d;
+  renderDP(id);
+}
+
+function selectHour(id, h) {
+  dpState[id].selectedHour = h;
+  renderDP(id);
+}
+
+function selectMin(id, m) {
+  dpState[id].selectedMin = m;
+  renderDP(id);
+}
+
+function selectAMPM(id, val) {
+  dpState[id].selectedAMPM = val;
+  renderDP(id);
+}
+
+function setToday(id) {
+  const now = new Date();
+  const s = dpState[id];
+  s.year = now.getFullYear();
+  s.month = now.getMonth();
+  s.selectedDay = now.getDate();
+  s.selectedHour = now.getHours() % 12 || 12;
+  s.selectedMin = now.getMinutes();
+  s.selectedAMPM = now.getHours() < 12 ? 'a.m.' : 'p.m.';
+  renderDP(id);
+}
+
+function clearDP(id) {
+  const s = dpState[id];
+  s.selectedDay = null;
+  document.getElementById(s.hiddenId).value = '';
+  document.getElementById(s.displayId).textContent = 'Seleccionar fecha y hora';
+  document.getElementById(s.displayId).classList.remove('has-value');
+  renderDP(id);
+  document.getElementById(id + '-popup').classList.remove('open');
+  document.querySelector(`#${id} .dp-input`).classList.remove('active');
+}
+
+function confirmDP(id) {
+  const s = dpState[id];
+  if (!s.selectedDay) {
+    showToast('Selecciona un día del calendario', 'error');
+    return;
+  }
+  let hour24 = s.selectedHour;
+  if (s.selectedAMPM === 'p.m.' && hour24 !== 12) hour24 += 12;
+  if (s.selectedAMPM === 'a.m.' && hour24 === 12) hour24 = 0;
+
+  const dt = new Date(s.year, s.month, s.selectedDay, hour24, s.selectedMin);
+  const iso = dt.toISOString();
+  document.getElementById(s.hiddenId).value = iso;
+
+  const display = `${String(s.selectedDay).padStart(2,'0')}/${String(s.month+1).padStart(2,'0')}/${s.year}, ${String(s.selectedHour).padStart(2,'0')}:${String(s.selectedMin).padStart(2,'0')} ${s.selectedAMPM}`;
+  document.getElementById(s.displayId).textContent = display;
+  document.getElementById(s.displayId).classList.add('has-value');
+
+  document.getElementById(id + '-popup').classList.remove('open');
+  document.querySelector(`#${id} .dp-input`).classList.remove('active');
+}
+
+// Cerrar al click fuera
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dp-wrapper')) {
+    document.querySelectorAll('.dp-popup').forEach(p => p.classList.remove('open'));
+    document.querySelectorAll('.dp-input').forEach(i => i.classList.remove('active'));
+  }
+});
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  el.classList.add('active');
+  if (name === 'lotes') loadLots();
+  if (name === 'resumen') loadSummary();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── GARMENTS ──────────────────────────────────────────────────────────────────
+function updateGarments() {
+  const gender = document.getElementById('f-gender').value;
+  const sel = document.getElementById('f-garmentType');
+  sel.innerHTML = '<option value="">Seleccionar...</option>';
+  if (gender && GARMENTS[gender]) {
+    GARMENTS[gender].forEach(g => { sel.innerHTML += `<option value="${g.value}">${g.label}</option>`; });
+  }
+}
+
+// ── BADGE ─────────────────────────────────────────────────────────────────────
+function badge(status) {
+  const map = { SENT:['badge-sent','Enviado'], IN_PROGRESS:['badge-progress','En proceso'], RETURNED:['badge-returned','Devuelto'] };
+  const [cls, label] = map[status] || ['',''];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+
+// ── CARGAR LOTES ──────────────────────────────────────────────────────────────
+async function loadLots() {
+  const params = new URLSearchParams();
+  const g = document.getElementById('filter-gender').value;
+  const gt = document.getElementById('filter-garment').value;
+  const s = document.getElementById('filter-size').value;
+  const st = document.getElementById('filter-status').value;
+  if (g) params.append('gender', g);
+  if (gt) params.append('garmentType', gt);
+  if (s) params.append('size', s);
+  if (st) params.append('status', st);
+  const res = await fetch(`${API}/lots?${params}`);
+  const json = await res.json();
+  document.getElementById('header-count').textContent = `${json.total} lotes registrados`;
+  const tbody = document.getElementById('lots-body');
+  if (!json.data || json.data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="11" class="empty">No hay lotes registrados aún</td></tr>';
+    return;
+  }
+  tbody.innerHTML = json.data.map(lot => `
+    <tr>
+      <td><strong>${lot.lotNumber}</strong></td>
+      <td>${lot.gender === 'hombre' ? '👔 Hombre' : '👗 Mujer'}</td>
+      <td>${lot.garmentLabel}</td>
+      <td><strong>${lot.size}</strong></td>
+      <td>${lot.quantity}</td>
+      <td>${badge(lot.status)}</td>
+      <td style="font-size:0.82rem">${lot.sentAtFormatted || '—'}</td>
+      <td style="font-size:0.82rem">${lot.startedAtFormatted || '—'}</td>
+      <td style="font-size:0.82rem">${lot.returnedAtFormatted || '—'}</td>
+      <td style="font-size:0.8rem;color:#888">${lot.elapsedTime || '—'}</td>
+      <td>
+        <div class="actions">
+          ${lot.status === 'SENT' ? `<button class="btn btn-success btn-sm" onclick="openModal('${lot.id}','start')">▶ Iniciar</button>` : ''}
+          ${lot.status === 'IN_PROGRESS' ? `<button class="btn btn-warning btn-sm" onclick="openModal('${lot.id}','return')">✅ Devolver</button>` : ''}
+          <button class="btn btn-danger" onclick="deleteLot('${lot.id}')">🗑</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function clearFilters() {
+  ['filter-gender','filter-garment','filter-size','filter-status'].forEach(id => document.getElementById(id).value = '');
+  loadLots();
+}
+
+// ── CREAR LOTE ────────────────────────────────────────────────────────────────
+async function submitLot(e) {
+  e.preventDefault();
+  const body = {
+    lotNumber: document.getElementById('f-lotNumber').value,
+    gender: document.getElementById('f-gender').value,
+    garmentType: document.getElementById('f-garmentType').value,
+    size: document.getElementById('f-size').value,
+    quantity: document.getElementById('f-quantity').value,
+    notes: document.getElementById('f-notes').value || null,
+    sentAt: document.getElementById('f-sentAt').value,
+  };
+  if (!body.sentAt) { showToast("❌ Debes seleccionar la fecha y hora de envío", "error"); return; }
+  const res = await fetch(`${API}/lots`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+  const json = await res.json();
+  if (json.success) {
+    showToast('✅ Lote registrado correctamente');
+    e.target.reset();
+    document.getElementById('f-garmentType').innerHTML = '<option value="">Selecciona género primero</option>';
+    clearDP('dp-sent');
+    document.querySelectorAll('.tab')[0].click();
+  } else {
+    const msgs = json.error.messages ? json.error.messages.join(' | ') : json.error.message;
+    showToast('❌ ' + msgs, 'error');
+  }
+}
+
+// ── MODAL ─────────────────────────────────────────────────────────────────────
+function openModal(id, action) {
+  currentLotId = id;
+  currentAction = action;
+  const isStart = action === 'start';
+  document.getElementById('modal-title').textContent = isStart ? 'Iniciar confeccion' : "Devolver al almacén de Trucco's";
+  document.getElementById('modal-desc').textContent = isStart
+    ? 'Indica la fecha y hora en que inició el proceso de confeccion.'
+    : "Indica la fecha y hora en que el lote fue devuelto al almacén de Trucco's.";
+  document.getElementById('modal-date-label').textContent = isStart ? 'Fecha y hora de inicio' : 'Fecha y hora de devolución';
+  setToday('dp-modal');
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  currentLotId = null; currentAction = null;
+}
+
+async function confirmAction() {
+  const isoDate = document.getElementById('modal-date-value').value;
+  if (!isoDate) {
+    // Si no seleccionó, confirmar con fecha actual
+    confirmDP('dp-modal');
+    if (!document.getElementById('modal-date-value').value) return;
+  }
+  const bodyKey = currentAction === 'start' ? 'startedAt' : 'returnedAt';
+  const res = await fetch(`${API}/lots/${currentLotId}/${currentAction}`, {
+    method:'PATCH', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({[bodyKey]: document.getElementById('modal-date-value').value})
+  });
+  const json = await res.json();
+  closeModal();
+  if (json.success) { showToast('✅ ' + json.message); loadLots(); }
+  else showToast('❌ ' + json.error.message, 'error');
+}
+
+// ── ELIMINAR ──────────────────────────────────────────────────────────────────
+async function deleteLot(id) {
+  if (!confirm('¿Seguro que deseas eliminar este lote?')) return;
+  const res = await fetch(`${API}/lots/${id}`, { method:'DELETE' });
+  const json = await res.json();
+  if (json.success) { showToast('🗑 Lote eliminado'); loadLots(); }
+  else showToast('❌ ' + json.error.message, 'error');
+}
+
+// ── RESUMEN ───────────────────────────────────────────────────────────────────
+async function loadSummary() {
+  const res = await fetch(`${API}/lots/summary`);
+  const json = await res.json();
+  if (!json.success) return;
+  const { byStatus, byGarment, bySize } = json.data;
+  document.getElementById('sum-sent').textContent = byStatus.SENT || 0;
+  document.getElementById('sum-progress').textContent = byStatus.IN_PROGRESS || 0;
+  document.getElementById('sum-returned').textContent = byStatus.RETURNED || 0;
+  document.getElementById('sum-garment').innerHTML = Object.entries(byGarment).length
+    ? Object.entries(byGarment).map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f0f2f5"><span>${k}</span><strong>${v}</strong></div>`).join('')
+    : '<p style="color:#aaa;text-align:center;padding:1rem">Sin datos</p>';
+  document.getElementById('sum-size').innerHTML = Object.entries(bySize).length
+    ? Object.entries(bySize).map(([k,v]) => `<div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid #f0f2f5"><span>Talla ${k}</span><strong>${v}</strong></div>`).join('')
+    : '<p style="color:#aaa;text-align:center;padding:1rem">Sin datos</p>';
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+initDP('dp-sent', 'f-sentAt', 'dp-sent-display');
+initDP('dp-modal', 'modal-date-value', 'dp-modal-display');
+loadLots();
+</script>
+</body>
+</html>

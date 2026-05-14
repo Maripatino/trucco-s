@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Detalle de lote - Trucco's</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; color: #1a1a2e; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem 1rem; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 0.8rem; flex-wrap: wrap; }
+    .title { font-size: 1.4rem; font-weight: 700; }
+    .btn { border: none; border-radius: 8px; padding: 0.65rem 1rem; font-weight: 600; cursor: pointer; }
+    .btn-back { background: #1a1a2e; color: white; }
+    .btn-back:hover { background: #2d2d4e; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); padding: 1.25rem; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem 1rem; }
+    .item { background: #fafafa; border: 1px solid #eee; border-radius: 8px; padding: 0.7rem 0.8rem; }
+    .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: #666; margin-bottom: 0.25rem; }
+    .value { font-size: 0.95rem; font-weight: 600; color: #222; word-break: break-word; }
+    .full { grid-column: 1 / -1; }
+    .error { color: #e74c3c; background: #fff0f0; border: 1px solid #ffd9d9; border-radius: 8px; padding: 0.9rem; }
+    .evidence-thumb { display: inline-block; margin: 4px; cursor: zoom-in; }
+    .evidence-thumb img,
+    .evidence-thumb video {
+      max-width: 200px;
+      max-height: 160px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      object-fit: cover;
+      background: #111;
+    }
+    .matrix-wrap { overflow-x: auto; margin-top: 0.35rem; }
+    .matrix-table {
+      width: 100%;
+      min-width: 520px;
+      border-collapse: collapse;
+      border-spacing: 7px;
+    }
+    .matrix-table th,
+    .matrix-table td {
+      border: none;
+      padding: 0;
+      background: transparent;
+    }
+    .section-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+    .section-accordion {
+      border: 1px solid #dfe6ef;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
+    }
+    .section-accordion-header {
+      width: 100%;
+      border: none;
+      background: linear-gradient(180deg, #f8fafc 0%, #eef3f8 100%);
+      padding: 0.85rem 1rem;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 800;
+      color: #1f2937;
+    }
+    .section-accordion-header:hover { background: linear-gradient(180deg, #f4f7fb 0%, #e8eef6 100%); }
+    .section-accordion-title { display: flex; flex-direction: column; gap: 0.15rem; }
+    .section-accordion-title strong { font-size: 0.95rem; }
+    .section-accordion-title span { font-size: 0.78rem; color: #667085; font-weight: 600; }
+    .section-accordion-chevron {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: #fff;
+      border: 1px solid #d3dbe6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.25s ease;
+      flex-shrink: 0;
+    }
+    .section-accordion.open .section-accordion-chevron { transform: rotate(180deg); }
+    .section-accordion-panel {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, opacity 0.25s ease, padding 0.25s ease;
+      padding: 0 1rem;
+    }
+    .section-accordion.open .section-accordion-panel {
+      max-height: 1200px;
+      opacity: 1;
+      padding: 0 1rem 1rem;
+    }
+    .matrix-corner {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #667085;
+      letter-spacing: 0.35px;
+      min-width: 140px;
+    }
+    .matrix-head,
+    .matrix-row {
+      display: inline-block;
+      background: #eef2f7;
+      border: 1px solid #d8e0ea;
+      border-radius: 999px;
+      padding: 0.3rem 0.5rem;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: #334155;
+      white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.75);
+    }
+    .matrix-cell {
+      width: 22px;
+      height: 22px;
+      border: 1.5px solid #cdd6e1;
+      border-radius: 6px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.74rem;
+      font-weight: 800;
+      color: transparent;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.05);
+    }
+    .matrix-cell.active {
+      background: linear-gradient(180deg, #1a1a2e 0%, #23233b 100%);
+      border-color: #1a1a2e;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(26,26,46,0.22);
+    }
+    .preview-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+    .preview-overlay.open { display: flex; }
+    .preview-dialog {
+      position: relative;
+      width: 100%;
+      max-width: 980px;
+      max-height: 90vh;
+      background: #121327;
+      border-radius: 12px;
+      padding: 0.75rem;
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.35);
+    }
+    .preview-close {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      border: none;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+    .preview-content {
+      width: 100%;
+      max-height: calc(90vh - 1.5rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .preview-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      border-radius: 999px;
+      width: 44px;
+      height: 44px;
+      font-size: 1.35rem;
+      cursor: pointer;
+    }
+    .preview-prev { left: 10px; }
+    .preview-next { right: 10px; }
+    .preview-meta {
+      position: absolute;
+      left: 16px;
+      right: 60px;
+      bottom: 10px;
+      color: #fff;
+      font-size: 0.9rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      align-items: center;
+    }
+    .preview-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.92;
+    }
+    .preview-count {
+      opacity: 0.85;
+      flex-shrink: 0;
+    }
+    .preview-content img,
+    .preview-content video {
+      max-width: 100%;
+      max-height: calc(90vh - 2.5rem);
+      border-radius: 8px;
+    }
+
+    /* RESPONSIVE: TABLET (601px - 1024px) */
+    @media (min-width: 601px) and (max-width: 1024px) {
+      .container { padding: 1.5rem 0.9rem; max-width: 95%; }
+      .topbar { flex-direction: row; gap: 0.6rem; }
+      .title { font-size: 1.2rem; }
+      .btn { padding: 0.55rem 0.9rem; font-size: 0.9rem; }
+      .card { padding: 1rem; }
+      .grid { gap: 0.6rem 0.9rem; }
+      .item { padding: 0.6rem; }
+      .label { font-size: 0.7rem; }
+      .value { font-size: 0.9rem; }
+    }
+
+    /* RESPONSIVE: MOBILE (max 600px) */
+    @media (max-width: 600px) {
+      * { touch-action: manipulation; }
+      body { font-size: 14px; }
+      .container { padding: 1.2rem 0.8rem; max-width: 100%; }
+      .topbar { flex-direction: column; gap: 0.6rem; }
+      .title { font-size: 1.1rem; }
+      .btn { width: 100%; padding: 0.6rem; font-size: 0.9rem; }
+      .card { padding: 0.9rem; margin-bottom: 0.8rem; }
+      .grid { grid-template-columns: 1fr; gap: 0.6rem; }
+      .item { padding: 0.6rem; }
+      .label { font-size: 0.7rem; margin-bottom: 0.2rem; }
+      .value { font-size: 0.85rem; }
+      .error { padding: 0.8rem; font-size: 0.9rem; }
+    }
+
+    /* RESPONSIVE: SMALL MOBILE (max 380px) */
+    @media (max-width: 380px) {
+      .container { padding: 1rem 0.6rem; }
+      .topbar { gap: 0.4rem; }
+      .title { font-size: 1rem; }
+      .btn { padding: 0.55rem 0.8rem; font-size: 0.85rem; }
+      .card { padding: 0.7rem; }
+      .item { padding: 0.5rem; }
+      .label { font-size: 0.65rem; }
+      .value { font-size: 0.8rem; }
+    }
+
+    @media (max-width: 600px) {
+      .preview-nav {
+        width: 40px;
+        height: 40px;
+      }
+      .preview-meta {
+        left: 12px;
+        right: 12px;
+        bottom: 12px;
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="topbar">
+      <h1 class="title">Informacion completa del lote</h1>
+      <button class="btn btn-back" onclick="goBack()">Volver a lotes</button>
+    </div>
+    <div id="content" class="card">Cargando informacion...</div>
+  </div>
+
+  <div class="preview-overlay" id="evidence-preview" onclick="if(event.target===this)closeEvidencePreview()">
+    <div class="preview-dialog">
+      <button class="preview-close" type="button" onclick="closeEvidencePreview()" aria-label="Cerrar previsualizacion">x</button>
+      <button class="preview-nav preview-prev" type="button" onclick="showPreviousEvidence()" aria-label="Evidencia anterior">&#8249;</button>
+      <button class="preview-nav preview-next" type="button" onclick="showNextEvidence()" aria-label="Siguiente evidencia">&#8250;</button>
+      <div class="preview-content" id="evidence-preview-content"></div>
+      <div class="preview-meta">
+        <div class="preview-name" id="evidence-preview-name"></div>
+        <div class="preview-count" id="evidence-preview-count"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/v1';
+    let _currentEvidence = [];
+    let _currentEvidenceIndex = -1;
+    let _matrixTemplates = [];
+    let _refreshTimer = null;
+    const MATRIX_SECTION_DEFS = [
+      { key: 'corte', label: 'Corte' },
+      { key: 'confeccion', label: 'Confección' },
+      { key: 'lavanderia', label: 'Lavandería' },
+      { key: 'terminacion', label: 'Terminación' },
+    ];
+
+    function getToken() {
+      return localStorage.getItem('trukos_token');
+    }
+
+    function decodeJwtPayload(token) {
+      if (!token || typeof token !== 'string') return null;
+      try {
+        const payload = token.split('.')[1];
+        if (!payload) return null;
+        const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+        const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, '=');
+        return JSON.parse(atob(padded));
+      } catch {
+        return null;
+      }
+    }
+
+    function getSavedUser() {
+      try {
+        return JSON.parse(localStorage.getItem('trukos_user'));
+      } catch {
+        return null;
+      }
+    }
+
+    function normalizeRole(role) {
+      return String(role || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toLowerCase();
+    }
+
+    function normalizeSectionKey(value) {
+      const key = normalizeRole(value);
+      if (key === 'terminado') return 'terminacion';
+      return key;
+    }
+
+    function getCurrentUserRole() {
+      const tokenRole = decodeJwtPayload(getToken())?.role;
+      return normalizeRole(tokenRole || getSavedUser()?.role || '');
+    }
+
+    function getAllowedSectionKeys() {
+      const role = getCurrentUserRole();
+      if (!role || role === 'admin') {
+        return ['corte', 'confeccion', 'lavanderia', 'terminacion'];
+      }
+      const map = {
+        corte: ['corte'],
+        confeccion: ['confeccion'],
+        lavanderia: ['lavanderia'],
+        terminado: ['terminacion'],
+        terminacion: ['terminacion'],
+      };
+      return map[role] || [];
+    }
+
+    async function loadMatrixTemplates() {
+      const token = getToken();
+      if (!token) return [];
+      try {
+        const res = await fetch(API + '/matrix-templates', {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (!res.ok) return [];
+        const json = await res.json();
+        return Array.isArray(json?.data) ? json.data : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function goBack() {
+      window.location.href = '/';
+    }
+
+    function getParam(name) {
+      const params = new URLSearchParams(window.location.search);
+      return params.get(name);
+    }
+
+    function fmtDate(value) {
+      if (!value) return 'No aplica';
+      const d = new Date(value);
+      return d.toLocaleString('es-CO');
+    }
+
+    function statusLabel(status) {
+      if (status === 'SENT') return 'Inicio de lote';
+      if (status === 'IN_PROGRESS') return 'En proceso';
+      if (status === 'RETURNED') return 'Lote terminado';
+      return status || 'No definido';
+    }
+
+    function roleLabel(role) {
+      if (role === 'admin') return 'Admin';
+      if (role === 'corte') return 'Corte';
+      if (role === 'confeccion') return 'Confeccion';
+      if (role === 'lavanderia') return 'Lavanderia';
+      if (role === 'terminado') return 'Terminado';
+      return role || 'No aplica';
+    }
+
+    function safe(v) {
+      return v === null || v === undefined || v === '' ? 'No aplica' : String(v);
+    }
+
+    function esc(v) {
+      return String(v === null || v === undefined ? '' : v)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function calcElapsedClientSide(startISO, endISO) {
+      if (!startISO || !endISO) return 'No aplica';
+      const diffMs = new Date(endISO) - new Date(startISO);
+      if (diffMs < 0) return 'No aplica';
+      const totalMinutes = Math.floor(diffMs / 60000);
+      const days = Math.floor(totalMinutes / 1440);
+      const hours = Math.floor((totalMinutes % 1440) / 60);
+      const minutes = totalMinutes % 60;
+      const parts = [];
+      if (days > 0) parts.push(days + ' dia' + (days > 1 ? 's' : ''));
+      if (hours > 0) parts.push(hours + ' hora' + (hours > 1 ? 's' : ''));
+      if (minutes > 0 || parts.length === 0) parts.push(minutes + ' minuto' + (minutes !== 1 ? 's' : ''));
+      return parts.join(', ');
+    }
+
+    function renderSizeDetails(lot) {
+      if (!Array.isArray(lot.sizeDetails) || lot.sizeDetails.length === 0) {
+        return '<div class="value">' + safe(lot.size) + '</div>';
+      }
+
+      return '<div class="value">' + lot.sizeDetails.map(function(detail) {
+        return safe(detail.size) + ': ' + safe(detail.description);
+      }).join('<br />') + '</div>';
+    }
+
+    function renderSizeDetailsTable(lot) {
+      const details = Array.isArray(lot && lot.sizeDetails) ? lot.sizeDetails : [];
+      if (!details.length) return '';
+
+      const rows = details.map(function(detail) {
+        return '<tr><td>' + safe(detail.size) + '</td><td>' + safe(detail.description) + '</td></tr>';
+      }).join('');
+
+      return ''
+        + '<div class="matrix-wrap">'
+        + '  <table class="summary-table" style="min-width:320px">'
+        + '    <thead><tr><th>Talla</th><th>Descripcion</th></tr></thead>'
+        + '    <tbody>' + rows + '</tbody>'
+        + '  </table>'
+        + '</div>';
+    }
+
+    function renderSizeMatrix(lot) {
+      const matrix = lot && lot.sizeMatrix ? lot.sizeMatrix : null;
+      const rows = Array.isArray(matrix && matrix.rows) ? matrix.rows : [];
+      const cols = Array.isArray(matrix && matrix.columns) ? matrix.columns : [];
+      const cells = Array.isArray(matrix && matrix.cells) ? matrix.cells : [];
+
+      if (!rows.length || !cols.length) return '';
+
+      const header = cols.map(function(col) {
+        return '<th><span class="matrix-head">' + esc(col) + '</span></th>';
+      }).join('');
+
+      const body = rows.map(function(rowLabel, rowIndex) {
+        const rowCells = cols.map(function(_, colIndex) {
+          const active = Boolean(Array.isArray(cells[rowIndex]) && cells[rowIndex][colIndex]);
+          return '<td><span class="matrix-cell' + (active ? ' active' : '') + '">' + (active ? 'X' : '') + '</span></td>';
+        }).join('');
+        return '<tr><th><span class="matrix-row">' + esc(rowLabel) + '</span></th>' + rowCells + '</tr>';
+      }).join('');
+
+      return ''
+        + '<div class="matrix-wrap">'
+        + '  <table class="matrix-table">'
+        + '    <thead><tr><th class="matrix-corner">Referencia / talla</th>' + header + '</tr></thead>'
+        + '    <tbody>' + body + '</tbody>'
+        + '  </table>'
+        + '</div>';
+    }
+    
+      function renderSizeMatrixTable(section) {
+        const rows = Array.isArray(section && section.rows) ? section.rows : [];
+        const cols = Array.isArray(section && section.columns) ? section.columns : [];
+        const cells = Array.isArray(section && section.cells) ? section.cells : [];
+
+        if (!rows.length || !cols.length) return '<div class="value">No aplica</div>';
+
+        const header = cols.map(function(col) {
+          return '<th><span class="matrix-head">' + esc(col) + '</span></th>';
+        }).join('');
+
+        const body = rows.map(function(rowLabel, rowIndex) {
+          const rowCells = cols.map(function(_, colIndex) {
+            const active = Boolean(Array.isArray(cells[rowIndex]) && cells[rowIndex][colIndex]);
+            return '<td><span class="matrix-cell' + (active ? ' active' : '') + '">' + (active ? 'X' : '') + '</span></td>';
+          }).join('');
+          return '<tr><th><span class="matrix-row">' + esc(rowLabel) + '</span></th>' + rowCells + '</tr>';
+        }).join('');
+
+        return ''
+          + '<div class="matrix-wrap">'
+          + '  <table class="matrix-table">'
+          + '    <thead><tr><th class="matrix-corner">Referencia / talla</th>' + header + '</tr></thead>'
+          + '    <tbody>' + body + '</tbody>'
+          + '  </table>'
+          + '</div>';
+      }
+
+      function getSizeMatrixSections(lot) {
+        if (Array.isArray(lot && lot.sizeMatrixSections)) return lot.sizeMatrixSections;
+        if (lot && lot.sizeMatrix && Array.isArray(lot.sizeMatrix.sections)) return lot.sizeMatrix.sections;
+        return [];
+      }
+
+      function buildMatrixCells(rowCount, colCount, existing) {
+        return Array.from({ length: rowCount }, function(_, rowIdx) {
+          const row = Array.isArray(existing && existing[rowIdx]) ? existing[rowIdx] : [];
+          return Array.from({ length: colCount }, function(__, colIdx) {
+            return Boolean(row[colIdx]);
+          });
+        });
+      }
+
+      function mergeSectionsWithTemplates(lot) {
+        const lotSections = getSizeMatrixSections(lot);
+        const lotByKey = new Map(
+          lotSections
+            .map(function(section) { return [normalizeSectionKey(section?.key), section]; })
+            .filter(function(pair) { return pair[0]; })
+        );
+        const tplByKey = new Map(
+          (_matrixTemplates || [])
+            .map(function(section) { return [normalizeSectionKey(section?.key), section]; })
+            .filter(function(pair) { return pair[0]; })
+        );
+
+        return MATRIX_SECTION_DEFS.map(function(def) {
+          const lotSection = lotByKey.get(def.key);
+          const tplSection = tplByKey.get(def.key);
+
+          const rows = Array.isArray(lotSection?.rows) && lotSection.rows.length
+            ? lotSection.rows
+            : (Array.isArray(tplSection?.rows) ? tplSection.rows : []);
+          const cols = Array.isArray(lotSection?.columns) && lotSection.columns.length
+            ? lotSection.columns
+            : (Array.isArray(tplSection?.columns) ? tplSection.columns : []);
+          const cells = buildMatrixCells(rows.length, cols.length, lotSection?.cells);
+
+          const details = Array.isArray(lotSection?.details)
+            ? lotSection.details
+            : [];
+
+          return {
+            key: def.key,
+            label: lotSection?.label || tplSection?.label || def.label,
+            rows,
+            columns: cols,
+            cells,
+            details,
+          };
+        });
+      }
+
+      function renderMatrixAccordion(lot) {
+        const allowedKeys = new Set(getAllowedSectionKeys());
+        const sections = mergeSectionsWithTemplates(lot).filter(function(section) {
+          const key = normalizeSectionKey(section && section.key);
+          return allowedKeys.has(key);
+        });
+        if (!sections.length) return '';
+
+        return '<div class="section-stack">' + sections.map(function(section, index) {
+          const title = section.label || section.key || ('Seccion ' + (index + 1));
+          const subtitle = Array.isArray(section.details) && section.details.length
+            ? section.details.map(function(detail) { return safe(detail.size) + ': ' + safe(detail.description); }).join(' · ')
+            : 'Tabla independiente de referencias y tallas';
+          return ''
+            + '<section class="section-accordion open">'
+            + '  <button type="button" class="section-accordion-header" onclick="toggleMatrixAccordion(this)">'
+            + '    <span class="section-accordion-title"><strong>' + esc(title) + '</strong><span>' + esc(subtitle) + '</span></span>'
+            + '    <span class="section-accordion-chevron">&#9662;</span>'
+            + '  </button>'
+            + '  <div class="section-accordion-panel">'
+            +      renderSizeMatrixTable(section)
+            + '  </div>'
+            + '</section>';
+        }).join('') + '</div>';
+      }
+
+      function toggleMatrixAccordion(button) {
+        const accordion = button.closest('.section-accordion');
+        if (!accordion) return;
+        accordion.classList.toggle('open');
+      }
+
+    function renderSizesInProcess(lot) {
+      const bySection = renderMatrixAccordion(lot);
+      if (bySection) return bySection;
+
+      const legacyMatrix = renderSizeMatrix(lot);
+      if (legacyMatrix) return legacyMatrix;
+
+      const byDetails = renderSizeDetailsTable(lot);
+      if (byDetails) return byDetails;
+
+      return renderSizeDetails(lot);
+    }
+
+    function renderEvidence(lot) {
+      if (!Array.isArray(lot.evidence) || lot.evidence.length === 0) return '';
+      _currentEvidence = lot.evidence;
+      const items = lot.evidence.map(function(ev, index) {
+        const isVideo = ev.type && ev.type.startsWith('video/');
+        if (isVideo) {
+          return '<div class="evidence-thumb" onclick="openEvidencePreview(' + index + ')"><video src="' + ev.data + '" muted preload="metadata"></video></div>';
+        }
+        return '<div class="evidence-thumb" onclick="openEvidencePreview(' + index + ')"><img src="' + ev.data + '" alt="' + safe(ev.name) + '"/></div>';
+      }).join('');
+      return '<div class="item full"><div class="label">Evidencias (' + lot.evidence.length + ')</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + items + '</div></div>';
+    }
+
+    function renderEvidencePreview(index) {
+      const ev = _currentEvidence[index];
+      if (!ev || !ev.data) return;
+      _currentEvidenceIndex = index;
+      const isVideo = ev.type && ev.type.startsWith('video/');
+      const content = document.getElementById('evidence-preview-content');
+      const name = document.getElementById('evidence-preview-name');
+      const count = document.getElementById('evidence-preview-count');
+      if (!content) return;
+      if (isVideo) {
+        content.innerHTML = '<video src="' + ev.data + '" controls autoplay></video>';
+      } else {
+        content.innerHTML = '<img src="' + ev.data + '" alt="' + safe(ev.name) + '" />';
+      }
+      if (name) name.textContent = ev.name || 'Evidencia';
+      if (count) count.textContent = (index + 1) + ' / ' + _currentEvidence.length;
+    }
+
+    function openEvidencePreview(index) {
+      if (!_currentEvidence.length) return;
+      renderEvidencePreview(index);
+      document.getElementById('evidence-preview').classList.add('open');
+    }
+
+    function showPreviousEvidence() {
+      if (!_currentEvidence.length || _currentEvidenceIndex < 0) return;
+      const nextIndex = (_currentEvidenceIndex - 1 + _currentEvidence.length) % _currentEvidence.length;
+      renderEvidencePreview(nextIndex);
+    }
+
+    function showNextEvidence() {
+      if (!_currentEvidence.length || _currentEvidenceIndex < 0) return;
+      const nextIndex = (_currentEvidenceIndex + 1) % _currentEvidence.length;
+      renderEvidencePreview(nextIndex);
+    }
+
+    function closeEvidencePreview() {
+      const modal = document.getElementById('evidence-preview');
+      const content = document.getElementById('evidence-preview-content');
+      const name = document.getElementById('evidence-preview-name');
+      const count = document.getElementById('evidence-preview-count');
+      if (modal) modal.classList.remove('open');
+      if (content) content.innerHTML = '';
+      if (name) name.textContent = '';
+      if (count) count.textContent = '';
+      _currentEvidenceIndex = -1;
+    }
+
+    function renderHistory(lot) {
+      if (!Array.isArray(lot.processHistory) || lot.processHistory.length === 0) return '';
+      const currentId = lot.createdBy ? lot.createdBy.id : null;
+      const filtered = lot.processHistory.filter(function(s) { return s.createdBy && s.createdBy.id !== currentId; });
+      const stepsToShow = [];
+      filtered.forEach(function(step) {
+        const last = stepsToShow[stepsToShow.length - 1];
+        const stepKey = (step.createdBy && (step.createdBy.id || step.createdBy.username)) || '';
+        const lastKey = last && last.createdBy ? (last.createdBy.id || last.createdBy.username) : '';
+        // Keep only the latest snapshot within the same consecutive owner period
+        if (stepsToShow.length && stepKey === lastKey) {
+          stepsToShow[stepsToShow.length - 1] = step;
+        } else {
+          stepsToShow.push(step);
+        }
+      });
+      if (!stepsToShow.length) return '';
+      const entries = stepsToShow.map(function(step, index) {
+        const fullName = step.createdBy
+          ? ([step.createdBy.firstName, step.createdBy.lastName].filter(Boolean).join(' ') || step.createdBy.username || 'No aplica')
+          : 'No aplica';
+        const department = step.createdBy ? roleLabel(step.createdBy.role) : 'No aplica';
+        return '<div style="border:1px solid #eee;border-radius:8px;padding:0.65rem;margin-bottom:0.5rem;background:#fff">'
+          + '<div style="font-weight:700;margin-bottom:0.25rem">Etapa ' + (index + 1) + '</div>'
+          + '<div style="font-size:0.85rem;color:#555">Departamento: <strong>' + safe(department) + '</strong></div>'
+          + '<div style="font-size:0.85rem;color:#555">Registrado por: <strong>' + safe(fullName) + '</strong></div>'
+          + '<div style="font-size:0.85rem;color:#555">Estado final: <strong>' + safe(statusLabel(step.status)) + '</strong></div>'
+          + '<div style="font-size:0.85rem;color:#555">Procesado/Total: <strong>' + safe(step.processedQuantity) + '/' + safe(step.totalQuantity) + '</strong></div>'
+          + '<div style="font-size:0.85rem;color:#555">Fecha de traspaso: <strong>' + fmtDate(step.movedAt) + '</strong></div>'
+          + '</div>';
+      }).join('');
+      return '<div class="item full"><div class="label">Historial de etapas anteriores</div><div style="margin-top:6px">' + entries + '</div></div>';
+    }
+
+    function renderLot(lot) {
+      const html = [
+        '<div class="grid">',
+        '<div class="item"><div class="label">ID</div><div class="value">' + safe(lot.id) + '</div></div>',
+        '<div class="item"><div class="label">Numero de lote</div><div class="value">' + safe(lot.lotNumber) + '</div></div>',
+        '<div class="item"><div class="label">Genero</div><div class="value">' + (lot.gender === 'hombre' ? 'Hombre' : lot.gender === 'mujer' ? 'Mujer' : safe(lot.gender)) + '</div></div>',
+        '<div class="item"><div class="label">Tipo de prenda</div><div class="value">' + safe(lot.garmentLabel || lot.garmentType) + '</div></div>',
+        '<div class="item full"><div class="label">Tallas en proceso</div>' + renderSizesInProcess(lot) + '</div>',
+        '<div class="item"><div class="label">Cantidad total</div><div class="value">' + safe(lot.totalQuantity ?? lot.quantity) + '</div></div>',
+        '<div class="item"><div class="label">Cantidad procesada</div><div class="value">' + safe(lot.processedQuantity ?? 0) + '</div></div>',
+        '<div class="item"><div class="label">Estado</div><div class="value">' + statusLabel(lot.status) + '</div></div>',
+        '<div class="item"><div class="label">Departamento actual</div><div class="value">' + (lot.createdBy ? roleLabel(lot.createdBy.role) : 'No aplica') + '</div></div>',
+        '<div class="item"><div class="label">Responsable actual</div><div class="value">' + (lot.createdBy ? ([lot.createdBy.firstName, lot.createdBy.lastName].filter(Boolean).join(' ') || lot.createdBy.username || 'No aplica') : 'No aplica') + '</div></div>',
+        '<div class="item"><div class="label">Fecha y hora inicio del proceso</div><div class="value">' + fmtDate(lot.currentProcessStartAt || lot.sentAt) + '</div></div>',
+        '<div class="item"><div class="label">Fecha y hora ultima actualizacion</div><div class="value">' + fmtDate(lot.lastUpdatedAt || lot.sentAt) + '</div></div>',
+        '<div class="item full"><div class="label">Tiempo total del proceso (inicio hasta ultima actualizacion)</div><div class="value">' + (lot.elapsedTime ? lot.elapsedTime : calcElapsedClientSide(lot.currentProcessStartAt || lot.sentAt, lot.lastUpdatedAt || lot.sentAt)) + '</div></div>',
+        '<div class="item full"><div class="label">Notas</div><div class="value">' + safe(lot.notes) + '</div></div>',
+        renderHistory(lot),
+        renderEvidence(lot),
+        '</div>'
+      ].join('');
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    async function loadLot(silent) {
+      const id = getParam('id');
+      if (!id) {
+        document.getElementById('content').innerHTML = '<div class="error">No se envio el ID del lote.</div>';
+        return;
+      }
+
+      const token = getToken();
+      if (!token) {
+        document.getElementById('content').innerHTML = '<div class="error">Sesion expirada. Inicia sesion otra vez.</div>';
+        return;
+      }
+
+      if (!silent) {
+        document.getElementById('content').innerHTML = 'Cargando informacion...';
+      }
+
+      try {
+        _matrixTemplates = await loadMatrixTemplates();
+        const res = await fetch(API + '/lots/' + encodeURIComponent(id), {
+          headers: { 'Authorization': 'Bearer ' + token }
+        });
+
+        if (res.status === 401) {
+          document.getElementById('content').innerHTML = '<div class="error">No autorizado. Inicia sesion otra vez.</div>';
+          return;
+        }
+
+        const json = await res.json();
+        if (!res.ok || !json.data) {
+          document.getElementById('content').innerHTML = '<div class="error">No se pudo cargar la informacion del lote.</div>';
+          return;
+        }
+
+        renderLot(json.data);
+      } catch (e) {
+        if (!silent) {
+          document.getElementById('content').innerHTML = '<div class="error">Error de conexion al consultar el lote.</div>';
+        }
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeEvidencePreview();
+      if (e.key === 'ArrowLeft') showPreviousEvidence();
+      if (e.key === 'ArrowRight') showNextEvidence();
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+      loadLot(false);
+      if (_refreshTimer) clearInterval(_refreshTimer);
+      _refreshTimer = setInterval(function() {
+        loadLot(true);
+      }, 15000);
+    });
+  </script>
+</body>
+</html>

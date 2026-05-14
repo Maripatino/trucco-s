@@ -1,0 +1,66 @@
+[
+  {
+    "key": "corte",
+    "label": "Corte",
+    "rows": [
+      "sms",
+      "Referencia 2",
+      "mia"
+    ],
+    "columns": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ]
+  },
+  {
+    "key": "confeccion",
+    "label": "Confeccion",
+    "rows": [
+      "Referencia 1",
+      "Referencia 2",
+      "Referencia 3"
+    ],
+    "columns": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ]
+  },
+  {
+    "key": "lavanderia",
+    "label": "Lavanderia",
+    "rows": [
+      "Referencia 1",
+      "Referencia 2",
+      "Referencia 3"
+    ],
+    "columns": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ]
+  },
+  {
+    "key": "terminacion",
+    "label": "Terminacion",
+    "rows": [
+      "Referencia 1",
+      "Referencia 2",
+      "Referencia 3"
+    ],
+    "columns": [
+      "XS",
+      "S",
+      "M",
+      "L",
+      "XL"
+    ]
+  }
+]

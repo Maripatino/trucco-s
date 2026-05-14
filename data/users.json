@@ -1,0 +1,40 @@
+[
+  {
+    "id": "24a3ec25-4b40-43fa-a21c-99036ca17966",
+    "username": "admin",
+    "password": "$2b$10$BcZVZS5l.gQmES6RXbicLOVG2zp5buQMOtvQ1KlaFsnk6Xemhy97y",
+    "role": "admin",
+    "active": true,
+    "createdAt": "2026-04-27T00:33:51.666Z"
+  },
+  {
+    "id": "ce62b2c4-6a86-4cd9-8ff5-597bb54a5372",
+    "firstName": "Sonia",
+    "lastName": "Arboleda",
+    "username": "sonis",
+    "password": "$2b$10$fpBlKDRGtgXDIV.ryC8oW.niMHzfUH/rKcGE48xCfOYTF6Xjvyedq",
+    "role": "confeccion",
+    "active": true,
+    "createdAt": "2026-04-27T04:39:33.025Z"
+  },
+  {
+    "id": "26c00943-6d2d-4ef0-b4f9-1f115f485da8",
+    "firstName": "juan",
+    "lastName": "perez",
+    "username": "operario",
+    "password": "$2b$10$TKzUVfbw6l6Ahq/B3bpJHuuIrTx9y73Xfxb4P9PWUjE1OQ/K7EGJG",
+    "role": "corte",
+    "active": true,
+    "createdAt": "2026-04-27T05:13:47.297Z"
+  },
+  {
+    "id": "6d2ab83a-a080-472a-a11f-cab2be38ff3f",
+    "firstName": "andres",
+    "lastName": "noreña",
+    "username": "andres",
+    "password": "$2b$10$LvrTV0IoKQQXLxdKm1yH2OHaCiXAA5.ZSsJOhCHfmWgA/p1V2n1Uu",
+    "role": "lavanderia",
+    "active": true,
+    "createdAt": "2026-04-27T06:12:31.678Z"
+  }
+]

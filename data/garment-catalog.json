@@ -1,0 +1,38 @@
+{
+  "hombre": [
+    {
+      "value": "camiseta",
+      "label": "Camiseta"
+    },
+    {
+      "value": "sudadera",
+      "label": "Sudadera"
+    },
+    {
+      "value": "nueva_prenda",
+      "label": "blue jean"
+    },
+    {
+      "value": "nueva_prenda_2",
+      "label": "camisilla"
+    }
+  ],
+  "mujer": [
+    {
+      "value": "blue_jean",
+      "label": "Blue Jean"
+    },
+    {
+      "value": "top",
+      "label": "Top"
+    },
+    {
+      "value": "camisa",
+      "label": "Camisa"
+    },
+    {
+      "value": "ropa_interior",
+      "label": "Ropa Interior"
+    }
+  ]
+}
