@@ -329,7 +329,7 @@
       font-size: 0.76rem;
       font-weight: 600;
     }
-    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; margin-bottom: 1rem; }
     .summary-card {
       --summary-accent: #2980b9;
       --summary-value-color: #2980b9;
@@ -356,6 +356,123 @@
     .summary-card-total { --summary-accent: #2980b9; --summary-value-color: #2980b9; }
     .summary-card-progress { --summary-accent: #d68910; --summary-value-color: #d68910; }
     .summary-card-finished { --summary-accent: #27ae60; --summary-value-color: #27ae60; }
+    /* ── RAG Status card ───────────────────────────────────────────────── */
+    .rag-card {
+      background: #ffffff;
+      border-radius: 16px;
+      border: 1px solid #edf1f5;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .rag-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      padding: 1rem 1.25rem 0.9rem;
+      border-bottom: 1px solid #f0f4f8;
+      background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+    }
+    .rag-card-title {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+    }
+    .rag-card-title h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1f2937;
+      margin: 0;
+    }
+    .rag-icon { font-size: 1.15rem; }
+    .rag-counters-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+    .rag-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.28rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .rag-pill-green  { background: #ecfdf3; color: #027a48; border-color: #a7f3d0; }
+    .rag-pill-orange { background: #fff7ed; color: #c2410c; border-color: #fed7aa; }
+    .rag-pill-red    { background: #fef2f2; color: #b42318; border-color: #fecaca; }
+    .rag-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .rag-dot.green  { background: #22c55e; }
+    .rag-dot.orange { background: #f97316; }
+    .rag-dot.red    { background: #ef4444; }
+    .rag-empty-msg {
+      text-align: center;
+      color: #94a3b8;
+      font-size: 0.9rem;
+      padding: 2rem 1rem;
+      margin: 0;
+    }
+    /* RAG per-lot table */
+    .rag-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.87rem;
+    }
+    .rag-table thead tr {
+      background: #f8fafc;
+    }
+    .rag-table th {
+      padding: 0.65rem 1rem;
+      text-align: left;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #64748b;
+      border-bottom: 1px solid #e5e7eb;
+      white-space: nowrap;
+    }
+    .rag-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #f0f4f8;
+      color: #374151;
+      vertical-align: middle;
+    }
+    .rag-table tbody tr:last-child td { border-bottom: none; }
+    .rag-row-green  { border-left: 3px solid #22c55e; }
+    .rag-row-orange { border-left: 3px solid #f97316; }
+    .rag-row-red    { border-left: 3px solid #ef4444; }
+    .rag-days-cell { font-weight: 800; font-size: 0.95rem; text-align: center; }
+    .rag-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      border-radius: 999px;
+      padding: 0.22rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 800;
+    }
+    .rag-badge::before {
+      content: '';
+      display: inline-block;
+      width: 7px; height: 7px;
+      border-radius: 50%;
+    }
+    .rag-badge-green  { background: #ecfdf3; color: #027a48; }
+    .rag-badge-green::before  { background: #22c55e; }
+    .rag-badge-orange { background: #fff7ed; color: #c2410c; }
+    .rag-badge-orange::before { background: #f97316; }
+    .rag-badge-red    { background: #fef2f2; color: #b42318; }
+    .rag-badge-red::before    { background: #ef4444; }
     .summary-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
     .summary-table td { padding: 0.5rem 0.5rem; border-bottom: 1px solid #f0f0f0; }
     .summary-table td:last-child { text-align: right; font-weight: 700; }
@@ -482,6 +599,8 @@
       .summary-card { padding: 1rem; }
       .summary-value { font-size: 2rem; }
       .summary-label { font-size: 0.8rem; }
+      .rag-counters-row { flex-direction: column; gap: 0.3rem; }
+      .rag-table th, .rag-table td { padding: 0.5rem 0.6rem; font-size: 0.78rem; }
       .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       table { font-size: 0.8rem; }
       th { font-size: 0.72rem; padding: 0.5rem; }
@@ -577,9 +696,9 @@
 
   <div class="container">
     <div class="tabs" id="main-tabs">
-      <button class="tab active" onclick="showTab('lotes', this)">Lotes</button>
-      <button class="tab" onclick="showTab('registrar', this)">Registrar lote</button>
-      <button class="tab" onclick="showTab('resumen', this)">Resumen</button>
+      <button id="tab-btn-lotes" class="tab active" onclick="showTab('lotes', this)">Lotes</button>
+      <button id="tab-btn-registrar" class="tab" onclick="showTab('registrar', this)">Registrar lote</button>
+      <button id="tab-btn-resumen" class="tab" onclick="showTab('resumen', this)">Resumen</button>
       <button class="tab admin-only" onclick="showTab('usuarios', this)" style="display:none">Usuarios</button>
     </div>
 
@@ -703,6 +822,22 @@
         <div class="summary-card summary-card-total"><div class="summary-value" id="sum-total">10</div><div class="summary-label">Total de lotes</div></div>
         <div class="summary-card summary-card-progress"><div class="summary-value" id="sum-progress">6</div><div class="summary-label">Lotes en proceso</div></div>
         <div class="summary-card summary-card-finished"><div class="summary-value" id="sum-finished">4</div><div class="summary-label">Lotes terminados</div></div>
+      </div>
+      <div class="rag-card" id="rag-status-card">
+        <div class="rag-card-header">
+          <div class="rag-card-title">
+            <span class="rag-icon">&#128992;</span>
+            <h3>RAG Status &mdash; Seguimiento de tiempos</h3>
+          </div>
+          <div class="rag-counters-row">
+            <span class="rag-pill rag-pill-green"><span class="rag-dot green"></span>Verde <strong id="rag-count-green">0</strong></span>
+            <span class="rag-pill rag-pill-orange"><span class="rag-dot orange"></span>Naranja <strong id="rag-count-orange">0</strong></span>
+            <span class="rag-pill rag-pill-red"><span class="rag-dot red"></span>Rojo <strong id="rag-count-red">0</strong></span>
+          </div>
+        </div>
+        <div id="rag-table-wrap">
+          <p class="rag-empty-msg">Cargando datos&hellip;</p>
+        </div>
       </div>
       <div class="charts-grid">
         <!-- Gráfica de evolución de la producción -->
@@ -969,8 +1104,14 @@ function initApp(user) {
     el.style.display = user.role === 'admin' ? '' : 'none';
   });
 
+  updateMainTabsVisibility(user);
+
   // Activar tab inicial
-  showTab('lotes', document.querySelector('.tab.active'));
+  if (isRegisterOnlyRole()) {
+    showTab('registrar', document.getElementById('tab-btn-registrar'));
+  } else {
+    showTab('lotes', document.getElementById('tab-btn-lotes'));
+  }
   loadGarmentCatalog();
   loadMatrixTemplates();
   ensureDailyControlAutoRefresh();
@@ -1069,6 +1210,10 @@ document.addEventListener('click', (e) => { if(!e.target.closest('.dp-wrapper'))
 
 // ─── TABS ──────────────────────────────────────────────────────────────────
 function showTab(name, el) {
+  if (!canAccessTab(name)) {
+    showTab('registrar', document.getElementById('tab-btn-registrar'));
+    return;
+  }
   if (name !== 'registrar') flushPendingGarmentSaves();
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
@@ -1266,6 +1411,29 @@ function normalizeSectionKey(value) {
 function isAdminRole() {
   const role = normalizeRole(currentUser?.role || getUser()?.role || '');
   return role === 'admin';
+}
+
+function isRegisterOnlyRole() {
+  const role = normalizeRole(currentUser?.role || getUser()?.role || '');
+  return ['corte', 'confeccion', 'lavanderia', 'terminado', 'terminacion'].includes(role);
+}
+
+function canAccessTab(name) {
+  if (name === 'registrar') return true;
+  if (isAdminRole()) return true;
+  if (isRegisterOnlyRole()) return false;
+  return true;
+}
+
+function updateMainTabsVisibility(user) {
+  const role = normalizeRole(user?.role || '');
+  const isRestricted = ['corte', 'confeccion', 'lavanderia', 'terminado', 'terminacion'].includes(role);
+  const lotesBtn = document.getElementById('tab-btn-lotes');
+  const resumenBtn = document.getElementById('tab-btn-resumen');
+  const registrarBtn = document.getElementById('tab-btn-registrar');
+  if (lotesBtn) lotesBtn.style.display = isRestricted ? 'none' : '';
+  if (resumenBtn) resumenBtn.style.display = isRestricted ? 'none' : '';
+  if (registrarBtn) registrarBtn.style.display = '';
 }
 
 function canEditMatrixStructure() {
@@ -1880,7 +2048,11 @@ async function confirmAction() {
 }
 
 // ─── RESUMEN ───────────────────────────────────────────────────────────────
-const SUMMARY_DEFAULTS = { total: 10, inProcess: 6, finished: 4 };
+const SUMMARY_DEFAULTS = {
+  total: 10,
+  inProcess: 6,
+  finished: 4,
+};
 
 // Datos de producción diaria acumulada (fáciles de reemplazar con datos reales)
 const DEFAULT_PRODUCTION_DATA = [
@@ -1966,6 +2138,127 @@ function getLotProcessedQuantityValue(lot) {
   return Number.isFinite(qty) ? qty : 0;
 }
 
+function getBogotaDateParts(date) {
+  // Obtiene año, mes (1-based) y día en la zona horaria de Bogotá (America/Bogota)
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Bogota',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  });
+  const parts = fmt.formatToParts(date);
+  const get = (type) => Number(parts.find((p) => p.type === type)?.value || 0);
+  return { year: get('year'), month: get('month'), day: get('day') };
+}
+
+function calcBusinessDays(startDate) {
+  const startRaw = new Date(startDate);
+  if (isNaN(startRaw.getTime())) return 1;
+
+  // Fecha de inicio normalizada al día (UTC midnight) usando partes de Bogotá
+  const sp = getBogotaDateParts(startRaw);
+  const s = new Date(Date.UTC(sp.year, sp.month - 1, sp.day));
+
+  // Fecha actual de Bogotá
+  const nowBogota = getBogotaDateParts(new Date());
+  const e = new Date(Date.UTC(nowBogota.year, nowBogota.month - 1, nowBogota.day));
+
+  if (e < s) return 1;
+  let days = 0;
+  const cur = new Date(s);
+  while (cur <= e) {
+    const dow = cur.getUTCDay(); // usar UTC porque normalizamos a UTC midnight
+    if (dow !== 0) days++; // sábados cuentan, solo se excluyen domingos
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+  return Math.max(days, 1);
+}
+
+function getLotRagColor(areaKey, businessDays) {
+  const d = businessDays;
+  if (areaKey === 'corte') {
+    if (d <= 1) return 'green';
+    if (d === 2) return 'orange';
+    return 'red';
+  }
+  if (areaKey === 'confeccion') {
+    if (d <= 5) return 'green';
+    if (d <= 11) return 'orange';
+    return 'red';
+  }
+  if (areaKey === 'lavanderia') {
+    if (d <= 3) return 'green';
+    if (d <= 6) return 'orange';
+    return 'red';
+  }
+  if (areaKey === 'terminado') {
+    if (d <= 1) return 'green';
+    if (d === 2) return 'orange';
+    return 'red';
+  }
+  return 'green';
+}
+
+function getAreaLabel(areaKey) {
+  const labels = { corte: 'Corte', confeccion: 'Confección', lavanderia: 'Lavandería', terminado: 'Terminación' };
+  return labels[areaKey] || areaKey;
+}
+
+function computeLotRagRows(lots) {
+  const PROD_AREAS = ['corte', 'confeccion', 'lavanderia', 'terminado'];
+  return (lots || [])
+    .filter((lot) => String(lot?.status || '') !== 'RETURNED')
+    .map((lot) => {
+      const areaKey = normalizeArea(lot?.createdBy?.role || '');
+      if (!areaKey || !PROD_AREAS.includes(areaKey)) return null;
+      const startAt = lot?.currentProcessStartAt || lot?.sentAt || lot?.firstCreatedAt;
+      if (!startAt) return null;
+      const businessDays = calcBusinessDays(startAt);
+      const color = getLotRagColor(areaKey, businessDays);
+      return {
+        lotNumber: lot?.lotNumber || lot?.id || '--',
+        areaLabel: getAreaLabel(areaKey),
+        responsible: getDisplayName(lot?.createdBy || {}),
+        startFormatted: lot?.currentProcessStartAtFormatted || lot?.sentAtFormatted || '--',
+        businessDays,
+        color,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      const order = { red: 0, orange: 1, green: 2 };
+      return (order[a.color] ?? 3) - (order[b.color] ?? 3);
+    });
+}
+
+function renderRagTable(lots) {
+  const rows = computeLotRagRows(lots);
+  const wrap = document.getElementById('rag-table-wrap');
+  if (!wrap) return;
+  const counts = { green: 0, orange: 0, red: 0 };
+  rows.forEach((r) => { counts[r.color] = (counts[r.color] || 0) + 1; });
+  const cg = document.getElementById('rag-count-green');
+  const co = document.getElementById('rag-count-orange');
+  const cr = document.getElementById('rag-count-red');
+  if (cg) cg.textContent = counts.green;
+  if (co) co.textContent = counts.orange;
+  if (cr) cr.textContent = counts.red;
+  if (!rows.length) {
+    wrap.innerHTML = '<p class="rag-empty-msg">No hay lotes activos en producción.</p>';
+    return;
+  }
+  const COLOR_LABEL = { green: 'Verde', orange: 'Naranja', red: 'Rojo' };
+  const rowsHtml = rows.map((r) => `<tr class="rag-row rag-row-${r.color}">
+      <td><strong>${r.lotNumber}</strong></td>
+      <td>${r.areaLabel}</td>
+      <td>${r.responsible}</td>
+      <td style="font-size:0.82rem">${r.startFormatted}</td>
+      <td class="rag-days-cell">${r.businessDays}</td>
+      <td><span class="rag-badge rag-badge-${r.color}">${COLOR_LABEL[r.color]}</span></td>
+    </tr>`).join('');
+  wrap.innerHTML = `<table class="rag-table"><thead><tr>
+      <th>Lote</th><th>Área</th><th>Responsable</th><th>Fecha inicio</th><th>Días en proceso</th><th>Estado</th>
+    </tr></thead><tbody>${rowsHtml}</tbody></table>`;
+}
+
 function toISODateKey(dateValue) {
   const key = String(dateValue || '').slice(0, 10);
   return /^\d{4}-\d{2}-\d{2}$/.test(key) ? key : null;
@@ -1981,7 +2274,9 @@ function toLocalISODate(dateValue) {
 }
 
 function getTodayISODate() {
-  return toLocalISODate(new Date());
+  // Siempre retorna la fecha actual en zona horaria de Bogotá (America/Bogota)
+  const p = getBogotaDateParts(new Date());
+  return `${p.year}-${String(p.month).padStart(2, '0')}-${String(p.day).padStart(2, '0')}`;
 }
 
 function normalizeArea(value) {
@@ -2382,7 +2677,6 @@ function setSummaryCards(values) {
   const total = Number(values?.total ?? SUMMARY_DEFAULTS.total);
   const inProcess = Number(values?.inProcess ?? SUMMARY_DEFAULTS.inProcess);
   const finished = Number(values?.finished ?? SUMMARY_DEFAULTS.finished);
-
   document.getElementById('sum-total').textContent = Number.isFinite(total) ? total : SUMMARY_DEFAULTS.total;
   document.getElementById('sum-progress').textContent = Number.isFinite(inProcess) ? inProcess : SUMMARY_DEFAULTS.inProcess;
   document.getElementById('sum-finished').textContent = Number.isFinite(finished) ? finished : SUMMARY_DEFAULTS.finished;
@@ -2419,6 +2713,12 @@ async function loadSummary() {
       const dailyRecords = buildDailyRecordsFromLots(lots);
       const todayDate = getTodayISODate();
       const dailyRows = buildDailyActivityRows(users, dailyRecords, todayDate);
+      setSummaryCards({
+        total: d.total,
+        inProcess: d.byStatus?.IN_PROGRESS || 0,
+        finished: d.byStatus?.RETURNED || 0,
+      });
+      renderRagTable(lots);
       if (Object.keys(grouped).length > 0) productionByDate = grouped;
       if (groupedArea.some((x) => Number(x.value) > 0)) productionByArea = groupedArea;
       renderDailyActivityTable(dailyRows, todayDate);
