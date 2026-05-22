@@ -350,6 +350,15 @@
       return key;
     }
 
+    function normalizeArea(value) {
+      const role = normalizeRole(value);
+      if (['corte', 'cortador', 'cortadora'].includes(role)) return 'corte';
+      if (['confeccion', 'confeccionista', 'costura'].includes(role)) return 'confeccion';
+      if (['lavanderia', 'lavado', 'lavandera', 'lavandero'].includes(role)) return 'lavanderia';
+      if (['terminado', 'terminacion', 'terminador', 'terminadora', 'calidad'].includes(role)) return 'terminacion';
+      return null;
+    }
+
     function getCurrentUserRole() {
       const tokenRole = decodeJwtPayload(getToken())?.role;
       return normalizeRole(tokenRole || getSavedUser()?.role || '');
@@ -360,14 +369,9 @@
       if (!role || role === 'admin') {
         return ['corte', 'confeccion', 'lavanderia', 'terminacion'];
       }
-      const map = {
-        corte: ['corte'],
-        confeccion: ['confeccion'],
-        lavanderia: ['lavanderia'],
-        terminado: ['terminacion'],
-        terminacion: ['terminacion'],
-      };
-      return map[role] || [];
+      const area = normalizeArea(role);
+      if (!area) return [];
+      return [area];
     }
 
     async function loadMatrixTemplates() {
@@ -578,6 +582,14 @@
             columns: cols,
             cells,
             details,
+            hasLotData: Boolean(
+              lotSection && (
+                (Array.isArray(lotSection.rows) && lotSection.rows.length) ||
+                (Array.isArray(lotSection.columns) && lotSection.columns.length) ||
+                (Array.isArray(lotSection.details) && lotSection.details.length) ||
+                (Array.isArray(lotSection.cells) && lotSection.cells.some(function(row) { return Array.isArray(row) && row.some(Boolean); }))
+              )
+            ),
           };
         });
       }
@@ -586,7 +598,7 @@
         const allowedKeys = new Set(getAllowedSectionKeys());
         const sections = mergeSectionsWithTemplates(lot).filter(function(section) {
           const key = normalizeSectionKey(section && section.key);
-          return allowedKeys.has(key);
+          return allowedKeys.has(key) && section.hasLotData;
         });
         if (!sections.length) return '';
 

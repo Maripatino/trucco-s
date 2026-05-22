@@ -27,6 +27,40 @@ const isValidISODate = (value) => {
   return !isNaN(date.getTime());
 };
 
+const getBogotaDateParts = (dateValue) => {
+  const date = new Date(dateValue || '');
+  if (Number.isNaN(date.getTime())) return null;
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Bogota',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = fmt.formatToParts(date);
+  const get = (type) => Number(parts.find((p) => p.type === type)?.value || 0);
+  return { year: get('year'), month: get('month'), day: get('day') };
+};
+
+const calcBusinessDays = (startDate) => {
+  const startParts = getBogotaDateParts(startDate);
+  const nowParts = getBogotaDateParts(new Date());
+  if (!startParts || !nowParts) return 1;
+
+  const start = new Date(Date.UTC(startParts.year, startParts.month - 1, startParts.day));
+  const end = new Date(Date.UTC(nowParts.year, nowParts.month - 1, nowParts.day));
+  if (end < start) return 1;
+
+  let days = 0;
+  const cur = new Date(start);
+  while (cur <= end) {
+    const dow = cur.getUTCDay();
+    if (dow !== 0) days++;
+    cur.setUTCDate(cur.getUTCDate() + 1);
+  }
+
+  return Math.max(days, 1);
+};
+
 const calcElapsedTime = (startISO, endISO) => {
   if (!startISO || !endISO) return null;
   const diffMs = new Date(endISO) - new Date(startISO);
@@ -45,4 +79,4 @@ const calcElapsedTime = (startISO, endISO) => {
   return parts.join(', ');
 };
 
-module.exports = { nowISO, formatColombiaDate, isValidISODate, calcElapsedTime };
+module.exports = { nowISO, formatColombiaDate, isValidISODate, calcElapsedTime, getBogotaDateParts, calcBusinessDays };

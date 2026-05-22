@@ -1,0 +1,62 @@
+[
+  {
+    "id": "19f096ac-acba-4f0a-a9ff-50aa7eecc2c9",
+    "userId": "ce62b2c4-6a86-4cd9-8ff5-597bb54a5372",
+    "username": "sonis",
+    "lotId": "263721b1-9063-4e5f-9cbb-1b2259c49690",
+    "lotNumber": "003",
+    "color": "green",
+    "businessDays": 2,
+    "remainingDays": 12,
+    "message": "Lote #003: el proceso continúa dentro del tiempo estimado. Aún faltan 12 días hábiles para la entrega.",
+    "dateKey": "2026-05-21",
+    "read": true,
+    "createdAt": "2026-05-22T00:21:45.342Z",
+    "readAt": "2026-05-22T00:31:13.392Z"
+  },
+  {
+    "id": "3d7bb2e1-b906-412c-91a5-4735ff16013c",
+    "userId": "ce62b2c4-6a86-4cd9-8ff5-597bb54a5372",
+    "username": "sonis",
+    "lotId": "164a3bf9-37c4-494d-adf1-c400b19f59aa",
+    "lotNumber": "111111",
+    "color": "green",
+    "businessDays": 1,
+    "remainingDays": 13,
+    "message": "Lote #111111: el proceso continúa dentro del tiempo estimado. Aún faltan 13 días hábiles para la entrega.",
+    "dateKey": "2026-05-21",
+    "read": true,
+    "createdAt": "2026-05-22T00:21:45.347Z",
+    "readAt": "2026-05-22T00:31:12.315Z"
+  },
+  {
+    "id": "a9ee3860-faaf-4631-8683-4f13aec9236f",
+    "userId": "ce62b2c4-6a86-4cd9-8ff5-597bb54a5372",
+    "username": "sonis",
+    "lotId": "e81b1c80-49da-47d6-a145-945578bf2ce3",
+    "lotNumber": "10000",
+    "color": "green",
+    "businessDays": 1,
+    "remainingDays": 13,
+    "message": "Lote #10000: el proceso continúa dentro del tiempo estimado. Aún faltan 13 días hábiles para la entrega.",
+    "dateKey": "2026-05-21",
+    "read": true,
+    "createdAt": "2026-05-22T00:21:45.350Z",
+    "readAt": "2026-05-22T00:31:11.620Z"
+  },
+  {
+    "id": "3bb3948c-2792-477b-b90e-d65fc02a4dc1",
+    "userId": "24a3ec25-4b40-43fa-a21c-99036ca17966",
+    "username": "admin",
+    "lotId": "demo-admin-1",
+    "lotNumber": "DEMO1",
+    "color": "green",
+    "businessDays": 0,
+    "remainingDays": 2,
+    "message": "Notificación de prueba para admin. Aún faltan 2 días hábiles.",
+    "dateKey": "2026-05-21",
+    "read": true,
+    "createdAt": "2026-05-22T00:24:43.678Z",
+    "readAt": "2026-05-22T00:24:43.872Z"
+  }
+]

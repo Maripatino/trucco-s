@@ -13,6 +13,7 @@ const authRoutes = require('./src/routes/auth-routes');
 const userRoutes = require('./src/routes/user-routes');
 const templateRoutes = require('./src/routes/template-routes');
 const garmentCatalogRoutes = require('./src/routes/garment-catalog-routes');
+const notificationRoutes = require('./src/routes/notification-routes');
 const { authenticate } = require('./src/middlewares/auth-middleware');
 const errorHandler = require('./src/middlewares/error-handler');
 
@@ -28,6 +29,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/lots', authenticate, lotRoutes);
 app.use('/api/v1/matrix-templates', authenticate, templateRoutes);
 app.use('/api/v1/garment-catalog', authenticate, garmentCatalogRoutes);
+app.use('/api/v1/notifications', authenticate, notificationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
